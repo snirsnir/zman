@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>הצעה להפנינג: מכונת הזמן</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff4de, #ffe4bc, #ffd4a0);
+            color: #2c3e50;
+            line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+        background: #fff;
+        padding: 3rem;  /* הגדלת הריפוד */
+        border-radius: 20px;  /* הגדלת העיגול בפינות */
+        text-align: center;
+        max-width: 800px;  /* הגדלת הרוחב המקסימלי */
+        width: 95%;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+    }
+    .modal img {
+        max-width: 300px;  /* הגדלת התמונה */
+        margin: 2rem 0;  /* הגדלת המרווחים */
+        border-radius: 15px;
+    }
+    .modal h2 {
+        font-size: 2.5rem;  /* הגדלת הכותרת */
+        margin-bottom: 1.5rem;
+        color: #8e44ad;
+    }
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;  /* הגדלת המרווח בין הכפתורים */
+        margin-top: 2rem;
+    }
+
+    .modal-button {
+        padding: 1rem 2rem;  /* הגדלת הכפתורים */
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #3498db;
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        font-size: 1.2rem;  /* הגדלת הטקסט בכפתורים */
+    }
+
+        .modal-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #8e44ad;
+        }
+
+        .story-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #c0392b;
+        }
+
+        .concept-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: 2px solid #f4d03f;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .activity-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #8e44ad;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #c0392b;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .participants {
+            display: inline-block;
+            background: #8e44ad;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f4d03f 0%, #c0392b 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 0.5rem 0;
+            font-weight: 500;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .welcome-text {
+        font-size: 2rem;  /* הגדלת הטקסט */
+        color: #2c3e50;
+        margin: 2rem 0;  /* הגדלת המרווחים */
+        font-weight: bold;
+    }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" onclick="toggleSound()">
+        <i class="fas fa-volume-up"></i>
+    </button>
+
+    <div class="modal" id="welcomeModal">
+        <div class="modal-content">
+            <h2>ברוכים הבאים להפנינג מכונת הזמן בטכנודע חדרה!</h2>
+            <img src="https://i.ibb.co/Ct9K9HZ/logo.jpg" alt="לוגו טכנודע">
+            <p class="welcome-text">מוכנים להתחיל במסע?</p>
+            <div class="modal-buttons">
+                <button class="modal-button" onclick="startWithMusic()">כן, עם מוזיקה</button>
+                <button class="modal-button" onclick="startWithoutMusic()">כן, בלי מוזיקה</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>הפנינג מכונת הזמן - טכנודע חדרה</h1>
+            <div class="participants">משתתפים בפגישה: אלי, שניר, אמילי</div>
+        </div>
+
+        <div class="story-section">
+            <h2>סיפור המסגרת</h2>
+            <p>במרכז המדעי טכנודע, המדענית המבריקה ד"ר אמילי מציגה את המצאתה החדשה: מכונת הזמן. ברגע של תקלה, המכונה משתבשת ושולחת את כל המשתתפים אל העבר! כעת, עליהם לפתור אתגרים בתחנות שונות כדי לאסוף את החלקים הדרושים לתיקון המכונה ולחזור להווה.</p>
+            
+            <div class="highlight">קונספט: מסע מרתק בזמן שבו המשתתפים נדרשים לשתף פעולה, לגלות יצירתיות וחוכמה כדי לאסוף את כל החלקים ולתקן את מכונת הזמן.</div>
+            
+            <img class="concept-image" src="https://i.ibb.co/Zdb4sx7/Leonardo-Phoenix-Image-of-At-the-Technoda-Science-Center-brilli-0.jpg" alt="קונספט מכונת הזמן">
+        </div>
+
+        <h2>הסדנאות המוצעות</h2>
+        <div class="activities-grid">
+            <div class="activity-card">
+                <img src="https://static1.makeuseofimages.com/wordpress/wp-content/uploads/2019/04/old-games.jpg" alt="משחקי מחשב מהעבר">
+                <h3>מחשבים - משחקי העבר</h3>
+                <p>אוסף משחקים נוסטלגיים במעטפת אפליקציה מודרנית. כל הצלחה מזכה באות או סמל, ובסיום מרכיבים מילה להתקדמות.</p>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://www.itstrubalim.com/wp-content/uploads/2019/01/DSC_1763-rotated.jpg" alt="משחת שיניים">
+                <h3>סדנת משחת שיניים</h3>
+                <p>חוויה מדעית של הכנת משחת שיניים טבעית, המדגימה את ההתפתחות בהיגיינת הפה לאורך ההיסטוריה.</p>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://d3m9l0v76dty0.cloudfront.net/system/photos/14823900/large/b9d08959e033f4acbea5f1946ba9723d.jpg" alt="עט תלת מימד">
+                <h3>מהעט נוצה לעט תלת מימד</h3>
+                <p>מסע מרתק מכתיבה בעט נוצה ועד לטכנולוגיית ההדפסה התלת-ממדית המודרנית.</p>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://www.treistar.com/wp-content/uploads/2023/01/Star-sky.jpg" alt="פלנטריום">
+                <h3>פלנטריום - מהצפון עד הוויז</h3>
+                <p>פעילות ניווט מרתקת המשלבת את התפתחות שיטות הניווט מהעבר ועד ימינו.</p>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://i.ytimg.com/vi/pQEkCvYIkYM/hq720.jpg" alt="אודיטוריום">
+                <h3>אודיטוריום - דיאלוג בין תקופות</h3>
+                <p>מפגש וירטואלי בין מדען מההווה למדען מהעבר, כולל חידון קהוט אינטראקטיבי.</p>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://img.haarets.co.il/bs/0000017f-e75c-dc7e-adff-f7fd3eb10000/01/b1/bede6af2be1d76d2de2242618851/4086492042.jpg" alt="תעופה">
+                <h3>תעופה בסיסית</h3>
+                <p>חקר שטח פנים והתפתחות התעופה לאורך ההיסטוריה.</p>
+            </div>
+        </div>
+    </div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="songs/song.mp3" type="audio/mp3">
+    </audio>
+
+    <script>
+        let isMuted = false;
+        const modal = document.getElementById('welcomeModal');
+        const music = document.getElementById('backgroundMusic');
+        const soundToggle = document.querySelector('.sound-toggle');
+
+        window.onload = function() {
+            modal.classList.add('show');
+        };
+
+        function startWithMusic() {
+            modal.classList.remove('show');
+            music.play();
+            isMuted = false;
+            updateSoundIcon();
+        }
+
+        function startWithoutMusic() {
+            modal.classList.remove('show');
+            music.pause();
+            isMuted = true;
+            updateSoundIcon();
+        }
+
+        function toggleSound() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                music.pause();
+            } else {
+                music.play();
+            }
+            updateSoundIcon();
+        }
+
+        function updateSoundIcon() {
+            const icon = soundToggle.querySelector('i');
+            icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        }
+    </script>
+</body>
+</html>
